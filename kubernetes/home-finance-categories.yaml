@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-finance-categories-deployment
+spec:
+  selector:
+    matchLabels:
+      app: home-finance-categories
+  template:
+    metadata:
+      labels:
+        app: home-finance-categories
+    spec:
+      containers:
+      - name: home-finance-categories
+        image: marlosbatista/home-finance-categories:v2
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        env:
+          - name: MongoDbSettings__Host
+            value: mongodb-service
+          - name: MongoDbSettings__Password
+            valueFrom:
+              secretKeyRef:
+                name: home-finance-secrets
+                key: mongodb-password
+        livenessProbe:
+          httpGet:
+            path: health/live
+            port: 80
+        readinessProbe:
+          httpGet:
+            path: health/ready
+            port: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-finance-categories-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: home-finance-categories
+  ports:
+  - port: 80
+    targetPort: 80

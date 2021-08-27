@@ -23,11 +23,14 @@ namespace home_finance_categories.Controllers
             this.repository = repository;
         }
 
+        //GET /items
         [HttpGet]
         public async Task<IEnumerable<CategoriaDto>> GetCategoriasAsync()
         {
             var categorias = (await repository.GetCategoriasAsync())
                                               .Select(categoria => categoria.AsDto());
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("hh:mm:ss)")}: Retrieved {categorias.Count()} categorias");
+
             return categorias;
         }
 
