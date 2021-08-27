@@ -6,6 +6,7 @@ using home_finance_categories.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using home_finance_categories.Dtos;
+using System.Threading.Tasks;
 
 namespace home_finance_categories.Controllers
 {
@@ -23,17 +24,18 @@ namespace home_finance_categories.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CategoriaDto> GetCategorias()
+        public async Task<IEnumerable<CategoriaDto>> GetCategoriasAsync()
         {
-            var categorias = repository.GetCategorias().Select(categoria => categoria.AsDto());
+            var categorias = (await repository.GetCategoriasAsync())
+                                              .Select(categoria => categoria.AsDto());
             return categorias;
         }
 
         // GET /categoria/{id}
         [HttpGet("{id}")]
-        public ActionResult<CategoriaDto> GetCategoria(Guid id)
+        public async Task<ActionResult<CategoriaDto>> GetCategoriaAsync(Guid id)
         {
-            var categoria = repository.GetCategoria(id);
+            var categoria = await repository.GetCategoriaAsync(id);
             if (categoria is null)
             {
                 return NotFound();
@@ -43,23 +45,23 @@ namespace home_finance_categories.Controllers
 
         // POST /categoria
         [HttpPost]
-        public ActionResult<CategoriaDto> CreateCategoria(CreateCategoriaDto categoriaDto)
+        public async Task<ActionResult<CategoriaDto>> CreateCategoriaAsync(CreateCategoriaDto categoriaDto)
         {
             Categoria categoria = new Categoria() {
                 Id = Guid.NewGuid(),
                 Nome = categoriaDto.Nome,
                 DataCriacao = DateTimeOffset.UtcNow
             };
-            repository.CreateCategoria(categoria);
+            await repository.CreateCategoriaAsync(categoria);
 
-            return CreatedAtAction(nameof(GetCategoria), new { id = categoria.Id }, categoria.AsDto());
+            return CreatedAtAction(nameof(GetCategoriaAsync), new { id = categoria.Id }, categoria.AsDto());
         }
 
         // PUT /categorias/{id}
         [HttpPut("{id}")]
-        public ActionResult UpdateCategoria(Guid id, UpdateCategoriaDto categoriaDto)
+        public async Task<ActionResult> UpdateCategoriaAsync(Guid id, UpdateCategoriaDto categoriaDto)
         {
-            var existingCategoria = repository.GetCategoria(id);
+            var existingCategoria = await repository.GetCategoriaAsync(id);
 
             if (existingCategoria is null)
             {
@@ -70,21 +72,22 @@ namespace home_finance_categories.Controllers
                 Nome = categoriaDto.Nome
             };
 
-            repository.UpdateCategoria(updatedCategoria);
+            await repository.UpdateCategoriaAsync(updatedCategoria);
             return NoContent();
         }
 
         // DELETE /categoria/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteCategoria(Guid id)
+        public async Task<ActionResult> DeleteCategoria(Guid id)
         {
-            var existingItem = repository.GetCategoria(id);
+            var existingItem = await repository.GetCategoriaAsync(id);
 
             if (existingItem is null) {
                 return NotFound();
             }
 
-            repository.DeleteCategoria(id);
+            await repository.DeleteCategoriaAsync(id);
+            
             return NoContent();
         }
     }

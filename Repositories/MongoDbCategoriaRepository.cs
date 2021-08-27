@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using home_finance_categories.Entities;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -20,32 +21,32 @@ namespace home_finance_categories.Repositories
             categoriaCollection = database.GetCollection<Categoria>(collectionName);
         }
 
-        public void CreateCategoria(Categoria categoria)
+        public async Task CreateCategoriaAsync(Categoria categoria)
         {
-            categoriaCollection.InsertOne(categoria);
+            await categoriaCollection.InsertOneAsync(categoria);
         }
 
-        public void DeleteCategoria(Guid id)
-        {
-            var filter = filterBuilder.Eq(categoria => categoria.Id, id);
-            categoriaCollection.DeleteOne(filter);
-        }
-
-        public Categoria GetCategoria(Guid id)
+        public async Task DeleteCategoriaAsync(Guid id)
         {
             var filter = filterBuilder.Eq(categoria => categoria.Id, id);
-            return categoriaCollection.Find(filter).SingleOrDefault();
+            await categoriaCollection.DeleteOneAsync(filter);
         }
 
-        public IEnumerable<Categoria> GetCategorias()
+        public async Task<Categoria> GetCategoriaAsync(Guid id)
         {
-            return categoriaCollection.Find(new BsonDocument()).ToList();
+            var filter = filterBuilder.Eq(categoria => categoria.Id, id);
+            return await categoriaCollection.Find(filter).SingleOrDefaultAsync();
         }
 
-        public void UpdateCategoria(Categoria categoria)
+        public async Task<IEnumerable<Categoria>> GetCategoriasAsync()
+        {
+            return await categoriaCollection.Find(new BsonDocument()).ToListAsync();
+        }
+
+        public async Task UpdateCategoriaAsync(Categoria categoria)
         {
             var filter = filterBuilder.Eq(existingCategoria => existingCategoria.Id, categoria.Id);
-            categoriaCollection.ReplaceOne(filter, categoria);
+            await categoriaCollection.ReplaceOneAsync(filter, categoria);
         }
     }
 }

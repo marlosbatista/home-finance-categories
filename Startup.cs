@@ -36,7 +36,10 @@ namespace home_finance_categories
 
             services.AddSingleton<ICategoriaRepository, MongoDbCategoriaRepository>();
 
-            services.AddControllers();
+            services.AddControllers(options => 
+            { 
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "home_finance_categories", Version = "v1" });
